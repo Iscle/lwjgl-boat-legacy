@@ -78,7 +78,7 @@ typedef int   EGLNativeDisplayType;
 typedef void *EGLNativeWindowType;
 typedef void *EGLNativePixmapType;
 
-#elif defined(__unix__)
+#elif defined(__unix__) && !defined(PLATFORM_BOAT)
 
 /* X11 (tentative)  */
 #include <X11/Xlib.h>
@@ -87,6 +87,15 @@ typedef void *EGLNativePixmapType;
 typedef Display *EGLNativeDisplayType;
 typedef Pixmap   EGLNativePixmapType;
 typedef Window   EGLNativeWindowType;
+
+#elif defined(PLATFORM_BOAT)
+
+struct ANativeWindow;
+struct egl_native_pixmap_t;
+
+typedef void                       *EGLNativeDisplayType;
+typedef struct egl_native_pixmap_t *EGLNativePixmapType;
+typedef struct ANativeWindow       *EGLNativeWindowType;
 
 #else
 #error "Platform not recognized"

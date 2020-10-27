@@ -266,11 +266,11 @@
 				<patternset refid="lwjgl-solaris.fileset" />
 			</fileset>
 		</copy>
-		<copy todir="${lwjgl.temp}/native/boat">
+		<!--<copy todir="${lwjgl.temp}/native/boat">
 			<fileset dir="${lwjgl.lib}/boat">
 				<patternset refid="lwjgl-boat.fileset" />
 			</fileset>
-		</copy>
+		</copy>-->
 
 		<!-- create base package -->
 		<zip destfile="${lwjgl.dist}/lwjgl-${lwjgl.version}.zip">

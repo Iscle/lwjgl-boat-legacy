@@ -43,8 +43,8 @@
 #define _LWJGL_CONTEXT_H_INCLUDED_
 
 #include <jni.h>
-
-#include "extgl_egl.h"
+#include <stdbool.h>
+#include "EGL/egl.h"
 
 typedef struct {
 	int visualid;

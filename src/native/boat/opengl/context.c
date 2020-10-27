@@ -40,10 +40,9 @@
  */
 
 #include <jni.h>
-
-#include "extgl_egl.h"
+#include "EGL/egl.h"
 #include "context.h"
-
+#include "common_tools.h"
 #include <boat.h>
 
 
@@ -152,7 +151,7 @@ static EGLConfig chooseVisualEGLFromBPP(JNIEnv *env, EGLDisplay disp, int screen
 	EGLConfig config;
 	EGLint useless;
 	
-	lwjgl_eglChooseConfig(disp, attrib_list, &config, 1, &useless);
+	eglChooseConfig(disp, attrib_list, &config, 1, &useless);
 	return config;
 }
 
@@ -166,12 +165,12 @@ static void dumpVisualInfo(JNIEnv *env, EGLDisplay display, EGLConfig vis_info) 
 	int alpha, depth, stencil, r, g, b;
 	int sample_buffers = 0;
 	int samples = 0;
-	lwjgl_eglGetConfigAttrib(display, vis_info, EGL_RED_SIZE, &r);
-	lwjgl_eglGetConfigAttrib(display, vis_info, EGL_GREEN_SIZE, &g);
-	lwjgl_eglGetConfigAttrib(display, vis_info, EGL_BLUE_SIZE, &b);
-	lwjgl_eglGetConfigAttrib(display, vis_info, EGL_ALPHA_SIZE, &alpha);
-	lwjgl_eglGetConfigAttrib(display, vis_info, EGL_DEPTH_SIZE, &depth);
-	lwjgl_eglGetConfigAttrib(display, vis_info, EGL_STENCIL_SIZE, &stencil);
+	eglGetConfigAttrib(display, vis_info, EGL_RED_SIZE, &r);
+	eglGetConfigAttrib(display, vis_info, EGL_GREEN_SIZE, &g);
+	eglGetConfigAttrib(display, vis_info, EGL_BLUE_SIZE, &b);
+	eglGetConfigAttrib(display, vis_info, EGL_ALPHA_SIZE, &alpha);
+	eglGetConfigAttrib(display, vis_info, EGL_DEPTH_SIZE, &depth);
+	eglGetConfigAttrib(display, vis_info, EGL_STENCIL_SIZE, &stencil);
 	
 	printfDebugJava(env, "Pixel format info: r = %d, g = %d, b = %d, a = %d, depth = %d, stencil = %d, sample buffers = %d, samples = %d", r, g, b, alpha, depth, stencil, sample_buffers, samples);
 }
@@ -185,10 +184,7 @@ bool initPeerInfo(JNIEnv *env, jobject peer_info_handle, EGLDisplay display, int
 		return false;
 	}
 	BoatPeerInfo *peer_info = (*env)->GetDirectBufferAddress(env, peer_info_handle);
-	if (!extgl_InitEGL(display)) {
-		throwException(env, "Could not init EGL");
-		return false;
-	}
+	eglInitialize(display, 0, 0);
 	
 	EGLConfig config = chooseVisualEGL(env, display, screen, pixel_format, use_display_bpp, drawable_type, double_buffered);
 	if (config == NULL) {

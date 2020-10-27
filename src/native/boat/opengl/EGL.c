@@ -35,7 +35,9 @@
  *
  * @author Spasi
  */
-#include "EGL.h"
+
+#include "EGL/egl.h"
+#include <jni.h>
 
 typedef struct {
 	EGLContext context;

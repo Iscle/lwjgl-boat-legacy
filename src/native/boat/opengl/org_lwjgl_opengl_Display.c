@@ -48,8 +48,8 @@
 #include <jni.h>
 
 #include "common_tools.h"
+#include "EGL/egl.h"
 #include "extgl.h"
-#include "extgl_egl.h"
 #include "context.h"
 #include "org_lwjgl_opengl_BoatDisplay.h"
 #include "org_lwjgl_opengl_BoatDisplayPeerInfo.h"
@@ -85,14 +85,7 @@ static int processEvent() {
 	}
 }
 static jlong openDisplay(JNIEnv *env) {
-
-	if (lwjgl_eglGetDisplay == NULL) {
-		throwException(env, "eglGetDisplay() not available!");
-		return (intptr_t)NULL;
-	}
-	EGLDisplay display_connection = lwjgl_eglGetDisplay(boatGetNativeDisplay());
-
-	return (intptr_t)display_connection;
+	return (intptr_t) eglGetDisplay(boatGetNativeDisplay());
 }
 
 JNIEXPORT jint JNICALL Java_org_lwjgl_DefaultSysImplementation_getJNIVersion
@@ -126,7 +119,7 @@ JNIEXPORT jlong JNICALL Java_org_lwjgl_opengl_BoatDisplay_openDisplay(JNIEnv *en
 
 JNIEXPORT void JNICALL Java_org_lwjgl_opengl_BoatDisplay_closeDisplay(JNIEnv *env, jclass clazz, jlong display) {
         
-	lwjgl_eglTerminate( (EGLDisplay)(intptr_t)display );
+	eglTerminate( (EGLDisplay)(intptr_t)display );
 	
 }
 
@@ -145,7 +138,7 @@ JNIEXPORT void JNICALL Java_org_lwjgl_opengl_BoatDisplayPeerInfo_initDefaultPeer
 static void destroyWindow(JNIEnv *env, EGLSurface disp, ANativeWindow* window) {
 	
 	if (egl_surface != EGL_NO_SURFACE) {
-		lwjgl_eglDestroySurface(disp, egl_surface);
+		eglDestroySurface(disp, egl_surface);
 		egl_surface = EGL_NO_SURFACE;
 	}
 	
@@ -196,12 +189,12 @@ JNIEXPORT jlong JNICALL Java_org_lwjgl_opengl_BoatDisplay_nCreateWindow(JNIEnv *
 		return 0;
 	}
 	
-	egl_surface = lwjgl_eglCreateWindowSurface(disp, config, win, NULL);
+	egl_surface = eglCreateWindowSurface(disp, config, win, NULL);
 
 	boatSetCurrentEventProcessor(processEvent);
 	
 	if (!checkBoatError(env, disp)) {
-		lwjgl_eglDestroySurface(disp, egl_surface);
+		eglDestroySurface(disp, egl_surface);
 		destroyWindow(env, disp, win);
 	}
 	return (jlong)(intptr_t)win;

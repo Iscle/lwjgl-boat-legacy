@@ -40,7 +40,7 @@
 #include <jni.h>
 
 #include "org_lwjgl_opengl_BoatContextImplementation.h"
-#include "extgl_egl.h"
+#include "EGL/egl.h"
 #include "context.h"
 #include "common_tools.h"
 
@@ -83,7 +83,7 @@ static void createContextEGL(JNIEnv *env, BoatPeerInfo *peer_info, BoatContext *
 	        EGL_NONE
 	};
 	
-	context = lwjgl_eglCreateContext(peer_info->display, config, shared_context, attrib_list);
+	context = eglCreateContext(peer_info->display, config, shared_context, attrib_list);
 	if (!checkContext(env, peer_info->display, context))
 		return;
 	context_info->context = context;
@@ -104,7 +104,7 @@ JNIEXPORT void JNICALL Java_org_lwjgl_opengl_BoatContextImplementation_nSetSwapI
   (JNIEnv *env, jclass clazz, jobject peer_info_handle, jobject context_handle, jint value)
 {
 	BoatPeerInfo *peer_info = (*env)->GetDirectBufferAddress(env, peer_info_handle);
-        lwjgl_eglSwapInterval(peer_info->display, value);
+        eglSwapInterval(peer_info->display, value);
         
 }
 
@@ -118,10 +118,7 @@ JNIEXPORT jobject JNICALL Java_org_lwjgl_opengl_BoatContextImplementation_nCreat
 	BoatPeerInfo *peer_info = (*env)->GetDirectBufferAddress(env, peer_handle);
 	BoatContext *context_info = (*env)->GetDirectBufferAddress(env, context_handle);
 	
-	if (!extgl_InitEGL(peer_info->display)) {
-		throwException(env, "Could not initialize EGL");
-		return NULL;
-	}
+	eglInitialize(peer_info->display, 0, 0);
 	EGLContext shared_context = NULL;
 	if (shared_context_handle != NULL) {
 		BoatContext *shared_context_info = (*env)->GetDirectBufferAddress(env, shared_context_handle);
@@ -136,14 +133,14 @@ JNIEXPORT void JNICALL Java_org_lwjgl_opengl_BoatContextImplementation_nDestroy
   (JNIEnv *env, jclass clazz, jobject peer_handle, jobject context_handle) {
 	BoatPeerInfo *peer_info = (*env)->GetDirectBufferAddress(env, peer_handle);
 	BoatContext *context_info = (*env)->GetDirectBufferAddress(env, context_handle);
-	lwjgl_eglDestroyContext(peer_info->display, context_info->context);
+	eglDestroyContext(peer_info->display, context_info->context);
 }
 
 JNIEXPORT void JNICALL Java_org_lwjgl_opengl_BoatContextImplementation_nReleaseCurrentContext
   (JNIEnv *env , jclass clazz, jobject peer_info_handle) {
 	BoatPeerInfo *peer_info = (*env)->GetDirectBufferAddress(env, peer_info_handle);
 	bool result;
-	result = lwjgl_eglMakeCurrent(peer_info->display, EGL_NO_SURFACE, EGL_NO_SURFACE, NULL);
+	result = eglMakeCurrent(peer_info->display, EGL_NO_SURFACE, EGL_NO_SURFACE, NULL);
 
 	if (!result)
 		throwException(env, "Could not release current context");
@@ -155,7 +152,7 @@ JNIEXPORT void JNICALL Java_org_lwjgl_opengl_BoatContextImplementation_nMakeCurr
 	BoatPeerInfo *peer_info = (*env)->GetDirectBufferAddress(env, peer_info_handle);
 	BoatContext *context_info = (*env)->GetDirectBufferAddress(env, context_handle);
 	bool result;
-	result = lwjgl_eglMakeCurrent(peer_info->display, peer_info->drawable, peer_info->drawable, context_info->context);
+	result = eglMakeCurrent(peer_info->display, peer_info->drawable, peer_info->drawable, context_info->context);
 
 	if (!result)
 		throwException(env, "Could not make context current");
@@ -164,11 +161,11 @@ JNIEXPORT void JNICALL Java_org_lwjgl_opengl_BoatContextImplementation_nMakeCurr
 JNIEXPORT jboolean JNICALL Java_org_lwjgl_opengl_BoatContextImplementation_nIsCurrent
   (JNIEnv *env, jclass clazz, jobject context_handle) {
 	BoatContext *context_info = (*env)->GetDirectBufferAddress(env, context_handle);
-	return context_info->context == lwjgl_eglGetCurrentContext();
+	return context_info->context == eglGetCurrentContext();
 }
 
 JNIEXPORT void JNICALL Java_org_lwjgl_opengl_BoatContextImplementation_nSwapBuffers
   (JNIEnv *env, jclass clazz, jobject peer_info_handle) {
 	BoatPeerInfo *peer_info = (*env)->GetDirectBufferAddress(env, peer_info_handle);
-	lwjgl_eglSwapBuffers(peer_info->display, peer_info->drawable);
+	eglSwapBuffers(peer_info->display, peer_info->drawable);
 }
